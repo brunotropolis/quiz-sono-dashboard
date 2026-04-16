@@ -171,6 +171,57 @@
     font-weight: 600;
   }
 
+  .funnel-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #1e3a5f; }
+  .funnel-section h3 {
+    font-size: 0.85rem;
+    color: #5a7a94;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    background: #0f1923;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .funnel-bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, #1e3a5f 0%, #264a6f 100%);
+    border-radius: 6px;
+    transition: width 0.6s ease;
+    z-index: 0;
+  }
+  .funnel-label, .funnel-value {
+    position: relative;
+    z-index: 1;
+  }
+  .funnel-label {
+    font-size: 0.88rem;
+    color: #e0e6ed;
+    font-weight: 500;
+  }
+  .funnel-value {
+    font-weight: 700;
+    color: #fff;
+  }
+  .funnel-value .pct {
+    color: #4dabf7;
+    font-size: 0.8rem;
+    margin-left: 8px;
+  }
+  .funnel-drop {
+    color: #ff6b6b;
+    font-size: 0.75rem;
+    padding: 2px 12px 6px;
+  }
+
   .section-title {
     grid-column: 1 / -1;
     font-size: 1.2rem;
@@ -299,23 +350,29 @@ function renderDashboard(stats) {
 
   let grandTotal = 0;
   let grandClicks = 0;
+  let grandStarted = 0;
   Object.values(stats).forEach(s => {
     grandTotal += s.total;
     grandClicks += s.total_clicks || 0;
+    grandStarted += s.started || 0;
   });
 
   totalsEl.innerHTML = `
     <div class="total-card">
+      <div class="num">${grandStarted}</div>
+      <div class="label">Iniciaram o quiz</div>
+    </div>
+    <div class="total-card">
       <div class="num">${grandTotal}</div>
-      <div class="label">Quizzes finalizados</div>
+      <div class="label">Finalizaram</div>
     </div>
     <div class="total-card">
       <div class="num">${grandClicks}</div>
-      <div class="label">Cliques no botao</div>
+      <div class="label">Clicaram no botao</div>
     </div>
     <div class="total-card">
-      <div class="num">${grandTotal > 0 ? ((grandClicks / grandTotal) * 100).toFixed(1) + '%' : '0%'}</div>
-      <div class="label">Taxa de clique</div>
+      <div class="num">${grandStarted > 0 ? ((grandTotal / grandStarted) * 100).toFixed(1) + '%' : '-'}</div>
+      <div class="label">Conclusao geral</div>
     </div>
   `;
 
@@ -362,18 +419,59 @@ function renderDashboard(stats) {
       clicksHTML += '</div>';
     }
 
+    // Funil (só convite por enquanto, outros mostram s.started=0)
+    let funnelHTML = '';
+    const q = s.questions || { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 };
+    const started = s.started || 0;
+    if (started > 0 || s.total > 0) {
+      const steps = [
+        { label: 'Iniciou o quiz', count: started },
+        { label: 'Respondeu Q1', count: q.q1 },
+        { label: 'Respondeu Q2', count: q.q2 },
+        { label: 'Respondeu Q3 (metade)', count: q.q3 },
+        { label: 'Respondeu Q4', count: q.q4 },
+        { label: 'Respondeu Q5 / Finalizou', count: s.total },
+        { label: 'Clicou no botao', count: s.total_clicks || 0 }
+      ];
+      const topCount = Math.max(...steps.map(st => st.count), 1);
+      funnelHTML = '<div class="funnel-section"><h3>Funil de respostas</h3>';
+      steps.forEach((st, i) => {
+        const pctTopo = started > 0 ? ((st.count / started) * 100).toFixed(1) : '-';
+        const barW = (st.count / topCount) * 100;
+        funnelHTML += `
+          <div class="funnel-step">
+            <div class="funnel-bar" style="width:${barW}%"></div>
+            <span class="funnel-label">${st.label}</span>
+            <span class="funnel-value">${st.count}<span class="pct">${started > 0 ? pctTopo + '%' : ''}</span></span>
+          </div>
+        `;
+        if (i < steps.length - 1) {
+          const drop = steps[i].count - steps[i + 1].count;
+          if (drop > 0 && steps[i].count > 0) {
+            const dropPct = ((drop / steps[i].count) * 100).toFixed(1);
+            funnelHTML += `<div class="funnel-drop">↓ -${drop} (${dropPct}% saiu aqui)</div>`;
+          }
+        }
+      });
+      funnelHTML += '</div>';
+    }
+
     cardsHTML += `
       <div class="card">
         <h2>${info.name} <span class="badge">${info.desc}</span></h2>
         <div class="stats-row">
           <div class="stat-box">
+            <div class="num">${s.started || 0}</div>
+            <div class="label">Iniciou</div>
+          </div>
+          <div class="stat-box">
             <div class="num">${s.total}</div>
-            <div class="label">Finalizados</div>
+            <div class="label">Finalizou</div>
           </div>
           ${version === 'convite' ? `
           <div class="stat-box">
             <div class="num">${s.total_clicks || 0}</div>
-            <div class="label">Cliques botao</div>
+            <div class="label">Clicou</div>
           </div>
           <div class="stat-box">
             <div class="num">${s.total > 0 ? ((s.total_clicks / s.total) * 100).toFixed(1) + '%' : '0%'}</div>
@@ -381,7 +479,8 @@ function renderDashboard(stats) {
           </div>
           ` : ''}
         </div>
-        <ul class="profile-list">${profilesHTML}</ul>
+        ${funnelHTML}
+        <ul class="profile-list" style="margin-top:20px;">${profilesHTML}</ul>
         ${clicksHTML}
       </div>
     `;
