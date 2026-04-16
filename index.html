@@ -351,10 +351,17 @@ function renderDashboard(stats) {
   let grandTotal = 0;
   let grandClicks = 0;
   let grandStarted = 0;
+  // Conclusao geral: soma APENAS dos quizzes com tracking de start (para evitar razao distorcida)
+  let trackedStarted = 0;
+  let trackedCompleted = 0;
   Object.values(stats).forEach(s => {
     grandTotal += s.total;
     grandClicks += s.total_clicks || 0;
     grandStarted += s.started || 0;
+    if ((s.started || 0) > 0) {
+      trackedStarted += s.started;
+      trackedCompleted += s.total;
+    }
   });
 
   totalsEl.innerHTML = `
@@ -371,8 +378,8 @@ function renderDashboard(stats) {
       <div class="label">Clicaram no botao</div>
     </div>
     <div class="total-card">
-      <div class="num">${grandStarted > 0 ? ((grandTotal / grandStarted) * 100).toFixed(1) + '%' : '-'}</div>
-      <div class="label">Conclusao geral</div>
+      <div class="num">${trackedStarted > 0 ? ((trackedCompleted / trackedStarted) * 100).toFixed(1) + '%' : '-'}</div>
+      <div class="label">Conclusao (quizzes com tracking)</div>
     </div>
   `;
 
