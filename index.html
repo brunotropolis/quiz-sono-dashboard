@@ -171,6 +171,25 @@
     font-weight: 600;
   }
 
+  .answers-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #1e3a5f; }
+  .answers-section h3 {
+    font-size: 0.85rem; color: #5a7a94; margin-bottom: 12px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .answer-q { margin-bottom: 16px; }
+  .answer-q-title { font-size: 0.8rem; color: #ffb37a; font-weight: 700; margin-bottom: 6px; }
+  .answer-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px; margin-bottom: 3px; background: #0f1923;
+    border-radius: 6px; position: relative; overflow: hidden;
+  }
+  .answer-bar {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, #3d1a5b 0%, #c4147a 100%);
+    opacity: 0.55; border-radius: 6px; transition: width 0.6s ease; z-index: 0;
+  }
+  .answer-label { position: relative; z-index: 1; font-size: 0.82rem; color: #e0e6ed; }
+  .answer-val { position: relative; z-index: 1; font-size: 0.8rem; font-weight: 700; color: #fff; white-space: nowrap; margin-left: 10px; }
   .funnel-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #1e3a5f; }
   .funnel-section h3 {
     font-size: 0.85rem;
@@ -318,12 +337,25 @@ const ANIMAL_MAP = {
 };
 
 const QUIZ_LABELS = {
+  'perfis': { name: 'Perfis (low ticket R$67)', desc: 'perfis.manualdorecemnascido.com.br' },
   'aluna': { name: 'Aluna', desc: 'quiz.manualdorecemnascido.com.br' },
   'convite': { name: 'Convite', desc: 'convitequiz.manualdorecemnascido.com.br' },
   'quizclube': { name: 'Quiz Clube', desc: 'quizclube.manualdorecemnascido.com.br' }
 };
 
+const VERSOES = ['perfis', 'aluna', 'convite', 'quizclube'];
+const TEM_CLIQUE = { perfis: true, convite: true };
+
 const PROFILE_ORDER = ['Coruja', 'Le\u00e3o', 'Suricato', 'Canguru', 'Coala'];
+
+// Rotulos das perguntas/opcoes do quiz "perfis" (para o detalhamento de respostas)
+const QUESTIONS_LABELS = {
+  q1: { t: 'Idade do bebe', o: ['Ate 30 dias / nao nasceu', '01 a 03 meses', '03 a 06 meses', '06 a 09 meses', '09 a 12 meses'] },
+  q2: { t: 'Sonecas do dia', o: ['So dorme no colo', 'Dorme bem no berco de dia', 'Faz sonecas, mas precisa mais', 'Quase nao dorme, irritado'] },
+  q3: { t: 'Sono noturno', o: ['So no colo / deitado comigo', 'Dorme bem, muitos despertares', 'A noite dorme bem no berco'] },
+  q4: { t: 'Qualidade do sono', o: ['Colo profundo, berco acorda', 'Dia profundo, noite leve', 'Noite profundo, dia leve', 'Dia e noite leve', 'Dorme bem em qualquer lugar'] },
+  q5: { t: 'MAIOR dificuldade', o: ['Fazer dormir fora do colo / berco', 'Sono da noite / despertares', 'Sonecas do dia', 'Ajudar a relaxar (dia e noite)', 'Nao tenho dificuldade'] }
+};
 
 function loadData() {
   document.getElementById('loading').style.display = 'block';
@@ -385,8 +417,9 @@ function renderDashboard(stats) {
 
   let cardsHTML = '';
 
-  ['aluna', 'convite', 'quizclube'].forEach(version => {
+  VERSOES.forEach(version => {
     const s = stats[version];
+    if (!s) return;  // versao ainda sem eventos
     const info = QUIZ_LABELS[version];
     const maxCount = Math.max(...PROFILE_ORDER.map(p => s.profiles[p] || 0), 1);
 
@@ -410,7 +443,7 @@ function renderDashboard(stats) {
     });
 
     let clicksHTML = '';
-    if (version === 'convite' && s.total_clicks > 0) {
+    if (TEM_CLIQUE[version] && s.total_clicks > 0) {
       clicksHTML = '<div class="clicks-section"><h3>Cliques por perfil</h3>';
       PROFILE_ORDER.forEach(animal => {
         const clicks = s.clicks[animal] || 0;
@@ -463,6 +496,32 @@ function renderDashboard(stats) {
       funnelHTML += '</div>';
     }
 
+    // Detalhamento de respostas (so aparece quando o Apps Script agrega answer_choice)
+    let answersHTML = '';
+    const ans = s.answers || null;
+    if (ans && Object.keys(ans).length) {
+      answersHTML = '<div class="answers-section"><h3>Principais respostas</h3>';
+      ['q1','q2','q3','q4','q5'].forEach(qk => {
+        const def = QUESTIONS_LABELS[qk];
+        if (!def) return;
+        const counts = def.o.map((label, i) => ({ label, n: ans[qk + '_o' + (i+1)] || 0 }));
+        const totalQ = counts.reduce((a, b) => a + b.n, 0);
+        if (!totalQ) return;
+        answersHTML += `<div class="answer-q"><div class="answer-q-title">${qk.toUpperCase()} · ${def.t}</div>`;
+        counts.forEach(c => {
+          const pct = totalQ > 0 ? ((c.n / totalQ) * 100).toFixed(0) : 0;
+          answersHTML += `
+            <div class="answer-row">
+              <div class="answer-bar" style="width:${pct}%"></div>
+              <span class="answer-label">${c.label}</span>
+              <span class="answer-val">${c.n} · ${pct}%</span>
+            </div>`;
+        });
+        answersHTML += '</div>';
+      });
+      answersHTML += '</div>';
+    }
+
     cardsHTML += `
       <div class="card">
         <h2>${info.name} <span class="badge">${info.desc}</span></h2>
@@ -475,7 +534,7 @@ function renderDashboard(stats) {
             <div class="num">${s.total}</div>
             <div class="label">Finalizou</div>
           </div>
-          ${version === 'convite' ? `
+          ${TEM_CLIQUE[version] ? `
           <div class="stat-box">
             <div class="num">${s.total_clicks || 0}</div>
             <div class="label">Clicou</div>
@@ -488,6 +547,7 @@ function renderDashboard(stats) {
         </div>
         ${funnelHTML}
         <ul class="profile-list" style="margin-top:20px;">${profilesHTML}</ul>
+        ${answersHTML}
         ${clicksHTML}
       </div>
     `;
