@@ -337,14 +337,16 @@ const ANIMAL_MAP = {
 };
 
 const QUIZ_LABELS = {
-  'perfis': { name: 'Perfis (low ticket R$67)', desc: 'perfis.manualdorecemnascido.com.br' },
+  'perfis-pago': { name: 'Perfis 📢 Pago (low ticket R$67)', desc: 'perfis.manualdorecemnascido.com.br' },
+  'perfis-organico': { name: 'Perfis 🌱 Orgânico (low ticket R$67)', desc: 'perfis.manualdorecemnascido.com.br' },
+  'perfis': { name: 'Perfis (legado/testes)', desc: 'perfis.manualdorecemnascido.com.br' },
   'aluna': { name: 'Aluna', desc: 'quiz.manualdorecemnascido.com.br' },
   'convite': { name: 'Convite', desc: 'convitequiz.manualdorecemnascido.com.br' },
   'quizclube': { name: 'Quiz Clube', desc: 'quizclube.manualdorecemnascido.com.br' }
 };
 
-const VERSOES = ['perfis', 'aluna', 'convite', 'quizclube'];
-const TEM_CLIQUE = { perfis: true, convite: true };
+const VERSOES = ['perfis-pago', 'perfis-organico', 'perfis', 'aluna', 'convite', 'quizclube'];
+const TEM_CLIQUE = { 'perfis-pago': true, 'perfis-organico': true, perfis: true, convite: true };
 
 const PROFILE_ORDER = ['Coruja', 'Le\u00e3o', 'Suricato', 'Canguru', 'Coala'];
 
@@ -420,6 +422,7 @@ function renderDashboard(stats) {
   VERSOES.forEach(version => {
     const s = stats[version];
     if (!s) return;  // versao ainda sem eventos
+    if (!(s.total || s.started || s.total_clicks)) return;  // versao zerada (ex: perfis legado)
     const info = QUIZ_LABELS[version];
     const maxCount = Math.max(...PROFILE_ORDER.map(p => s.profiles[p] || 0), 1);
 
