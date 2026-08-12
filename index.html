@@ -176,9 +176,9 @@ const QUIZZES = [
     versions:{ tudo:['perfis-pago','perfis-organico','perfis'], pago:['perfis-pago'], organico:['perfis-organico'] },
     origem:true, clique:true },
   { id:'aluna', label:'Aluna', emoji:'🎓', desc:'quiz.manualdorecemnascido.com.br',
-    versions:{ tudo:['aluna'] }, origem:false, clique:false },
+    versions:{ tudo:['aluna'] }, origem:false, clique:false, funil:false },
   { id:'quizclube', label:'Quiz Clube', emoji:'⭐', desc:'quizclube.manualdorecemnascido.com.br',
-    versions:{ tudo:['quizclube'] }, origem:false, clique:false }
+    versions:{ tudo:['quizclube'] }, origem:false, clique:false, funil:false }
 ];
 
 const ANIMALS = [
@@ -290,22 +290,20 @@ function renderQuiz(c, s){
   var conc = started>0 ? ((total/started)*100).toFixed(1)+'%' : '—';
   var ctr = total>0 ? ((clicks/total)*100).toFixed(1)+'%' : '—';
   var ehPerfis = (c.id==='perfis');
+  var temFunilQuiz = (c.funil !== false);
 
   var html='';
 
-  // KPIs
-  html+='<div class="kpis">'
-    +'<div class="kpi"><div class="n pink">'+n(started)+'</div><div class="l">Iniciaram</div></div>'
-    +'<div class="kpi"><div class="n">'+n(total)+'</div><div class="l">Finalizaram</div></div>'
-    +'<div class="kpi"><div class="n verde">'+conc+'</div><div class="l">Conclusão</div></div>';
-  if(c.clique){
-    html+='<div class="kpi"><div class="n laranja">'+ctr+'</div><div class="l">Clicaram (CTR)</div></div>';
-  }else{
-    html+='<div class="kpi"><div class="n laranja">'+n(total)+'</div><div class="l">Leads</div></div>';
-  }
-  html+='</div>';
+  // KPIs (Iniciaram + Conclusão só quando o quiz rastreia funil)
+  var kpiParts=[];
+  if(temFunilQuiz) kpiParts.push('<div class="kpi"><div class="n pink">'+n(started)+'</div><div class="l">Iniciaram</div></div>');
+  kpiParts.push('<div class="kpi"><div class="n">'+n(total)+'</div><div class="l">Finalizaram</div></div>');
+  if(temFunilQuiz) kpiParts.push('<div class="kpi"><div class="n verde">'+conc+'</div><div class="l">Conclusão</div></div>');
+  if(c.clique) kpiParts.push('<div class="kpi"><div class="n laranja">'+ctr+'</div><div class="l">Clicaram (CTR)</div></div>');
+  html+='<div class="kpis" style="grid-template-columns:repeat('+Math.min(kpiParts.length,4)+',1fr)">'+kpiParts.join('')+'</div>';
 
-  // Funil
+  // Funil (só quando o quiz rastreia start/perguntas)
+  if(temFunilQuiz){
   var q=s.questions||{};
   var labFunil = ehPerfis
     ? ['Respondeu Q1 · idade','Respondeu Q2 · sonecas','Respondeu Q3 · noite','Respondeu Q4 · qualidade']
@@ -336,12 +334,11 @@ function renderQuiz(c, s){
         }
       }
     });
-  } else if(total>0){
-    html+='<div class="empty">Esse quiz não rastreia o funil passo a passo — só o resultado final ('+n(total)+' finalizações).</div>';
   } else {
     html+='<div class="empty">Ainda sem dados. Assim que o quiz começar a receber visitas, o funil aparece aqui.</div>';
   }
   html+='</div>';
+  } // fim if(temFunilQuiz) — funil
 
   // Perfis
   var prof=s.profiles||{};
