@@ -413,7 +413,9 @@ function load(){
   document.getElementById('erro').style.display='none';
   var btn=document.getElementById('btn'); btn.disabled=true;
 
-  fetch(TRACKING_URL).then(function(r){return r.json();}).then(function(data){
+  // credentials:'omit' é ESSENCIAL: sem isso o navegador manda cookies do Google e,
+  // com várias contas logadas, o Apps Script devolve 404 na conta errada (o "dados não sobem").
+  fetch(TRACKING_URL, {credentials:'omit'}).then(function(r){return r.json();}).then(function(data){
     STATS_RAW = data.stats || {};
     try{ localStorage.setItem(CACHE_KEY, JSON.stringify({stats:STATS_RAW, at:Date.now()})); }catch(e){}
     btn.disabled=false;
