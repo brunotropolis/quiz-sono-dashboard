@@ -3,563 +3,428 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Quiz Sono do Bebe</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Painel dos Quizzes · Sono do Bebê</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: #0f1923;
-    color: #e0e6ed;
-    min-height: 100vh;
-    padding: 20px;
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
-  }
-  .header h1 {
-    font-size: 1.8rem;
-    color: #fff;
-    margin-bottom: 5px;
-  }
-  .header p {
-    color: #8899aa;
-    font-size: 0.9rem;
-  }
-  .loading {
-    text-align: center;
-    padding: 60px;
-    color: #8899aa;
-    font-size: 1.1rem;
-  }
-  .loading .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid #1e3a5f;
-    border-top-color: #4dabf7;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 15px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+:root{
+  --roxo-900:#23103f; --roxo-700:#3d1a5b; --magenta:#c4147a;
+  --pink:#ff4f9a; --pink-soft:#ff7ab5; --laranja:#ff8a3d; --laranja-soft:#ffb37a;
+  --verde:#34d399; --azul:#6db3f2;
+  --texto:#f5edff; --texto-suave:rgba(245,237,255,.72);
+  --card:rgba(255,255,255,.07); --borda:rgba(255,255,255,.14);
+  --grad:linear-gradient(100deg,var(--pink) 0%,var(--laranja) 100%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Quicksand',sans-serif;color:var(--texto);
+  background:linear-gradient(165deg,var(--roxo-900) 0%,var(--roxo-700) 55%,#7c1a64 130%);
+  min-height:100vh;padding:28px 18px 60px;position:relative;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.deco{position:fixed;z-index:0;pointer-events:none}
+.twinkle{animation:tw 3.4s ease-in-out infinite}
+.twinkle.d1{animation-delay:.9s}.twinkle.d2{animation-delay:1.8s}
+@keyframes tw{0%,100%{opacity:.22}50%{opacity:.9}}
+.glow{position:fixed;z-index:0;border-radius:50%;filter:blur(100px);opacity:.4;pointer-events:none}
+.wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  .card {
-    background: #172a3a;
-    border-radius: 12px;
-    padding: 24px;
-    border: 1px solid #1e3a5f;
-  }
-  .card h2 {
-    font-size: 1rem;
-    color: #8899aa;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card h2 .badge {
-    background: #1e3a5f;
-    color: #4dabf7;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-  }
-  .big-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .big-label {
-    color: #5a7a94;
-    font-size: 0.85rem;
-  }
+/* header */
+.head{text-align:center;margin-bottom:24px}
+.head .tag{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  padding:7px 18px;border-radius:100px;background:rgba(255,138,61,.18);
+  border:1px solid rgba(255,138,61,.4);color:var(--laranja-soft);margin-bottom:14px;
+}
+.head h1{font-family:'Cardo',serif;font-size:clamp(28px,5vw,40px);letter-spacing:.02em}
+.head h1 span{color:var(--pink-soft)}
+.head p{color:var(--texto-suave);font-size:14px;margin-top:6px}
+.btn-refresh{
+  margin-top:18px;font-family:'Quicksand',sans-serif;font-weight:700;font-size:14px;color:#fff;
+  background:var(--grad);border:none;border-radius:100px;padding:11px 26px;cursor:pointer;
+  box-shadow:0 10px 28px rgba(255,79,154,.38);transition:transform .2s;
+}
+.btn-refresh:hover{transform:translateY(-2px)}
+.btn-refresh:disabled{opacity:.6;cursor:default;transform:none}
+.atualizado{font-size:12px;color:var(--texto-suave);margin-top:10px}
 
-  .stats-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .stat-box {
-    flex: 1;
-    min-width: 120px;
-    background: #0f1923;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-  }
-  .stat-box .num {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #fff;
-  }
-  .stat-box .label {
-    color: #5a7a94;
-    font-size: 0.75rem;
-    margin-top: 2px;
-  }
+/* seletor de quiz (nivel 1) */
+.quiz-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:20px}
+.qbtn{
+  font-family:'Quicksand',sans-serif;font-weight:700;font-size:13.5px;color:var(--texto-suave);
+  background:rgba(0,0,0,.22);border:1px solid var(--borda);border-radius:100px;
+  padding:10px 18px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;
+}
+.qbtn:hover{color:#fff;border-color:rgba(255,255,255,.32)}
+.qbtn.active{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 8px 22px rgba(255,79,154,.35)}
 
-  .profile-list {
-    list-style: none;
-  }
-  .profile-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #1e3a5f22;
-  }
-  .profile-item:last-child { border-bottom: none; }
-  .profile-name {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 500;
-  }
-  .profile-emoji { font-size: 1.4rem; }
-  .profile-count {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #4dabf7;
-  }
-  .profile-bar-container {
-    flex: 1;
-    margin: 0 15px;
-    background: #0f1923;
-    border-radius: 4px;
-    height: 8px;
-    overflow: hidden;
-  }
-  .profile-bar {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-  }
-  .bar-coruja { background: #f59f00; }
-  .bar-leao { background: #ff6b6b; }
-  .bar-suricato { background: #51cf66; }
-  .bar-canguru { background: #cc5de8; }
-  .bar-coala { background: #4dabf7; }
+/* seletor origem (nivel 2) */
+.seletor{display:inline-flex;gap:4px;margin-top:16px;padding:4px;background:rgba(0,0,0,.22);border:1px solid var(--borda);border-radius:100px}
+.seg{font-family:'Quicksand',sans-serif;font-weight:700;font-size:13px;color:var(--texto-suave);background:none;border:none;border-radius:100px;padding:9px 18px;cursor:pointer;transition:all .2s}
+.seg:hover{color:#fff}
+.seg.active{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(255,79,154,.35)}
+@media(max-width:560px){.seg{padding:8px 12px;font-size:12px}.qbtn{padding:9px 14px;font-size:12.5px}}
 
-  .clicks-section { margin-top: 16px; }
-  .clicks-section h3 {
-    font-size: 0.85rem;
-    color: #5a7a94;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .click-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 0.9rem;
-  }
-  .click-row .val {
-    color: #25d366;
-    font-weight: 600;
-  }
+/* estados */
+.loading,.erro{text-align:center;padding:70px 20px;color:var(--texto-suave)}
+.spin{width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--pink);margin:0 auto 16px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-  .answers-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #1e3a5f; }
-  .answers-section h3 {
-    font-size: 0.85rem; color: #5a7a94; margin-bottom: 12px;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .answer-q { margin-bottom: 16px; }
-  .answer-q-title { font-size: 0.8rem; color: #ffb37a; font-weight: 700; margin-bottom: 6px; }
-  .answer-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 10px; margin-bottom: 3px; background: #0f1923;
-    border-radius: 6px; position: relative; overflow: hidden;
-  }
-  .answer-bar {
-    position: absolute; left: 0; top: 0; bottom: 0;
-    background: linear-gradient(90deg, #3d1a5b 0%, #c4147a 100%);
-    opacity: 0.55; border-radius: 6px; transition: width 0.6s ease; z-index: 0;
-  }
-  .answer-label { position: relative; z-index: 1; font-size: 0.82rem; color: #e0e6ed; }
-  .answer-val { position: relative; z-index: 1; font-size: 0.8rem; font-weight: 700; color: #fff; white-space: nowrap; margin-left: 10px; }
-  .funnel-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #1e3a5f; }
-  .funnel-section h3 {
-    font-size: 0.85rem;
-    color: #5a7a94;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .funnel-step {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    margin-bottom: 4px;
-    background: #0f1923;
-    border-radius: 6px;
-    position: relative;
-    overflow: hidden;
-  }
-  .funnel-bar {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    background: linear-gradient(90deg, #1e3a5f 0%, #264a6f 100%);
-    border-radius: 6px;
-    transition: width 0.6s ease;
-    z-index: 0;
-  }
-  .funnel-label, .funnel-value {
-    position: relative;
-    z-index: 1;
-  }
-  .funnel-label {
-    font-size: 0.88rem;
-    color: #e0e6ed;
-    font-weight: 500;
-  }
-  .funnel-value {
-    font-weight: 700;
-    color: #fff;
-  }
-  .funnel-value .pct {
-    color: #4dabf7;
-    font-size: 0.8rem;
-    margin-left: 8px;
-  }
-  .funnel-drop {
-    color: #ff6b6b;
-    font-size: 0.75rem;
-    padding: 2px 12px 6px;
-  }
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{
+  background:var(--card);border:1px solid var(--borda);border-radius:18px;
+  padding:22px 16px;text-align:center;backdrop-filter:blur(6px);
+}
+.kpi .n{font-family:'Cardo',serif;font-size:clamp(30px,5vw,42px);font-weight:700;color:#fff;line-height:1}
+.kpi .n.pink{color:var(--pink-soft)}.kpi .n.verde{color:var(--verde)}.kpi .n.laranja{color:var(--laranja-soft)}
+.kpi .l{font-size:12px;font-weight:600;color:var(--texto-suave);margin-top:8px;text-transform:uppercase;letter-spacing:.06em}
 
-  .section-title {
-    grid-column: 1 / -1;
-    font-size: 1.2rem;
-    color: #fff;
-    padding: 15px 0 0;
-    border-top: 1px solid #1e3a5f;
-    margin-top: 10px;
-  }
+/* secoes */
+.sec{background:var(--card);border:1px solid var(--borda);border-radius:22px;padding:26px;margin-bottom:20px;backdrop-filter:blur(6px)}
+.sec h2{font-family:'Cardo',serif;font-size:20px;margin-bottom:6px;color:#fff}
+.sec .sub{font-size:13px;color:var(--texto-suave);margin-bottom:20px}
 
-  .refresh-btn {
-    display: inline-block;
-    background: #1e3a5f;
-    color: #4dabf7;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    margin-top: 8px;
-  }
-  .refresh-btn:hover { background: #264a6f; }
+/* funil */
+.step{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:5px;background:rgba(0,0,0,.22);border-radius:10px;position:relative;overflow:hidden}
+.step .bar{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(109,179,242,.35),rgba(74,144,217,.5));border-radius:10px;transition:width .7s ease;z-index:0}
+.step .lbl,.step .val{position:relative;z-index:1;font-size:14px}
+.step .lbl{font-weight:600}
+.step .val{font-weight:700;color:#fff;white-space:nowrap;margin-left:10px}
+.step .val .pct{color:var(--azul);font-size:12px;margin-left:7px}
+.drop{color:var(--pink-soft);font-size:11.5px;font-weight:700;padding:2px 14px 6px;opacity:.85}
 
-  .error-msg {
-    text-align: center;
-    padding: 40px;
-    color: #ff6b6b;
-  }
+/* perfis */
+.pf-row{display:flex;align-items:center;gap:14px;padding:9px 0}
+.pf-row .emo{width:40px;font-size:30px;text-align:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.pf-row .nome{min-width:84px;font-weight:700;font-size:14px}
+.pf-row .barbox{flex:1;height:14px;background:rgba(0,0,0,.25);border-radius:100px;overflow:hidden}
+.pf-row .barfill{display:block;height:100%;border-radius:100px;background:var(--grad);transition:width .7s ease}
+.pf-row .ct{min-width:66px;text-align:right;font-weight:700;font-size:14px}
+.pf-row .ct small{color:var(--texto-suave);font-weight:600;font-size:12px}
 
-  .total-row {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-  }
-  .total-card {
-    background: #172a3a;
-    border: 1px solid #1e3a5f;
-    border-radius: 12px;
-    padding: 20px 30px;
-    text-align: center;
-    min-width: 160px;
-  }
-  .total-card .num {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #4dabf7;
-  }
-  .total-card .label {
-    color: #5a7a94;
-    font-size: 0.8rem;
-    margin-top: 4px;
-  }
+/* respostas */
+.aq{margin-bottom:18px}
+.aq .qt{font-size:13px;font-weight:700;color:var(--laranja-soft);margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em}
+.arow{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:rgba(0,0,0,.22);border-radius:8px;position:relative;overflow:hidden}
+.arow .abar{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(196,20,122,.4),rgba(255,79,154,.45));border-radius:8px;transition:width .6s ease;z-index:0}
+.arow .al{position:relative;z-index:1;font-size:13px}
+.arow .av{position:relative;z-index:1;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;margin-left:10px}
+.empty{text-align:center;color:var(--texto-suave);font-size:13.5px;padding:14px;line-height:1.6}
 
-  @media (max-width: 500px) {
-    .grid { grid-template-columns: 1fr; }
-    .stats-row { gap: 10px; }
-    .big-number { font-size: 2.2rem; }
-    body { padding: 10px; }
-  }
+/* visao geral - lista de quizzes */
+.qlist{display:flex;flex-direction:column;gap:10px}
+.qcard{
+  display:flex;align-items:center;gap:14px;padding:16px 18px;
+  background:rgba(0,0,0,.22);border:1px solid var(--borda);border-radius:14px;
+  cursor:pointer;transition:all .2s;text-align:left;width:100%;font-family:'Quicksand',sans-serif;color:var(--texto)
+}
+.qcard:hover{border-color:rgba(255,255,255,.32);transform:translateY(-1px)}
+.qcard .qemo{font-size:28px;line-height:1}
+.qcard .qmeta{flex:1;min-width:0}
+.qcard .qname{font-weight:700;font-size:15px;color:#fff}
+.qcard .qdesc{font-size:12px;color:var(--texto-suave);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qcard .qnums{display:flex;gap:18px;flex-shrink:0}
+.qcard .qnum{text-align:center}
+.qcard .qnum b{display:block;font-family:'Cardo',serif;font-size:20px;color:#fff;line-height:1}
+.qcard .qnum span{font-size:10.5px;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:560px){.qcard .qnums{gap:12px}.qcard .qdesc{display:none}}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Dashboard Quiz Sono do Bebe</h1>
-  <p>Metricas em tempo real dos quizzes</p>
-  <button class="refresh-btn" onclick="loadData()">Atualizar dados</button>
-</div>
+<div class="glow" style="width:520px;height:520px;background:#c4147a;top:-180px;right:-140px"></div>
+<div class="glow" style="width:420px;height:420px;background:#5b2d8f;bottom:-160px;left:-130px"></div>
+<svg class="deco twinkle" style="top:8%;left:7%" width="18" height="18" viewBox="0 0 24 24"><path d="M12 1l2.6 7.4L22 11l-7.4 2.6L12 21l-2.6-7.4L2 11l7.4-2.6L12 1z" fill="#ffd9bb"/></svg>
+<svg class="deco twinkle d1" style="top:16%;right:9%" width="13" height="13" viewBox="0 0 24 24"><path d="M12 1l2.6 7.4L22 11l-7.4 2.6L12 21l-2.6-7.4L2 11l7.4-2.6L12 1z" fill="#fff"/></svg>
+<svg class="deco twinkle d2" style="bottom:14%;left:11%" width="15" height="15" viewBox="0 0 24 24"><path d="M12 1l2.6 7.4L22 11l-7.4 2.6L12 21l-2.6-7.4L2 11l7.4-2.6L12 1z" fill="#ff7ab5"/></svg>
 
-<div id="loading" class="loading">
-  <div class="spinner"></div>
-  Carregando dados...
-</div>
+<div class="wrap">
+  <div class="head">
+    <span class="tag">✨ Painel dos Quizzes</span>
+    <h1>Quiz Sono <span>do Bebê</span></h1>
+    <p>Métricas em tempo real de todos os quizzes</p>
 
-<div id="error" class="error-msg" style="display:none;">
-  Erro ao carregar dados. Verifique a URL do Apps Script.
-</div>
+    <div class="quiz-nav" id="quizNav"></div>
+    <div id="origemWrap" style="display:none">
+      <div class="seletor" id="seletor">
+        <button class="seg active" data-f="tudo">Tudo</button>
+        <button class="seg" data-f="pago">📢 Tráfego pago</button>
+        <button class="seg" data-f="organico">🌱 Orgânico</button>
+      </div>
+    </div>
 
-<div id="content" style="display:none;">
-  <div class="total-row" id="totals"></div>
-  <div class="grid" id="cards"></div>
+    <div><button class="btn-refresh" id="btn">↻ Atualizar dados</button></div>
+    <div class="atualizado" id="ts"></div>
+  </div>
+
+  <div class="loading" id="loading"><div class="spin"></div>Carregando métricas...</div>
+  <div class="erro" id="erro" style="display:none">Não consegui carregar os dados agora. <br>Tente atualizar em alguns segundos.</div>
+  <div id="content" style="display:none"></div>
 </div>
 
 <script>
 const TRACKING_URL = 'https://script.google.com/macros/s/AKfycbzh-GOfXA6A8tYKfn7U8fK4MXYI40M5CKMyTPergH9EqvjYGF2j5LbFQE68LhMKsQFm/exec';
 
-const ANIMAL_MAP = {
-  'Coruja': { emoji: '\ud83e\udd89', color: 'coruja' },
-  'Le\u00e3o':   { emoji: '\ud83e\udd81', color: 'leao' },
-  'Suricato': { emoji: '\ud83d\udc3e', color: 'suricato' },
-  'Canguru': { emoji: '\ud83e\udd98', color: 'canguru' },
-  'Coala':   { emoji: '\ud83d\udc28', color: 'coala' }
+// Cada quiz: qual(is) quiz_version do backend agrega, se tem origem pago/organico e se tem clique (CTR)
+const QUIZZES = [
+  { id:'perfis', label:'Dream Baby Pocket', emoji:'🌙', desc:'perfis.manualdorecemnascido.com.br',
+    versions:{ tudo:['perfis-pago','perfis-organico','perfis'], pago:['perfis-pago'], organico:['perfis-organico'] },
+    origem:true, clique:true },
+  { id:'aluna', label:'Aluna', emoji:'🎓', desc:'quiz.manualdorecemnascido.com.br',
+    versions:{ tudo:['aluna'] }, origem:false, clique:false },
+  { id:'convite', label:'Convite', emoji:'💌', desc:'convitequiz.manualdorecemnascido.com.br',
+    versions:{ tudo:['convite'] }, origem:false, clique:true },
+  { id:'quizclube', label:'Quiz Clube', emoji:'⭐', desc:'quizclube.manualdorecemnascido.com.br',
+    versions:{ tudo:['quizclube'] }, origem:false, clique:false }
+];
+
+const ANIMALS = [
+  { nome:'Canguru', e:'🦘' },
+  { nome:'Coala', e:'🐨' },
+  { nome:'Coruja', e:'🦉' },
+  { nome:'Leão', e:'🦁' },
+  { nome:'Suricato', e:'🐾' },
+  { nome:'Preguiça', e:'🦥' }
+];
+
+// Rotulos das perguntas/opcoes — especificos do quiz "perfis" (Dream Baby Pocket)
+const QLABELS = {
+  q1:{ t:'Idade do bebê', o:['Até 30 dias / não nasceu','01 a 03 meses','03 a 06 meses','06 a 09 meses','09 a 12 meses'] },
+  q2:{ t:'Sonecas do dia', o:['Só dorme no colo','Dorme bem no berço de dia','Faz sonecas, mas precisa mais','Quase não dorme, irritado'] },
+  q3:{ t:'Sono noturno', o:['Só no colo / deitado comigo','Dorme bem, muitos despertares','À noite dorme bem no berço'] },
+  q4:{ t:'Qualidade do sono', o:['Colo profundo, berço acorda','Dia profundo, noite leve','Noite profundo, dia leve','Dia e noite leve','Dorme bem em qualquer lugar'] },
+  q5:{ t:'MAIOR dificuldade', o:['Fazer dormir fora do colo / berço','Sono da noite / despertares','Sonecas do dia','Ajudar a relaxar (dia e noite)','Não tenho dificuldade'] }
 };
 
-const QUIZ_LABELS = {
-  'perfis-pago': { name: 'Perfis 📢 Pago (low ticket R$67)', desc: 'perfis.manualdorecemnascido.com.br' },
-  'perfis-organico': { name: 'Perfis 🌱 Orgânico (low ticket R$67)', desc: 'perfis.manualdorecemnascido.com.br' },
-  'perfis': { name: 'Perfis (legado/testes)', desc: 'perfis.manualdorecemnascido.com.br' },
-  'aluna': { name: 'Aluna', desc: 'quiz.manualdorecemnascido.com.br' },
-  'convite': { name: 'Convite', desc: 'convitequiz.manualdorecemnascido.com.br' },
-  'quizclube': { name: 'Quiz Clube', desc: 'quizclube.manualdorecemnascido.com.br' }
-};
+let STATS_RAW = {};        // resposta crua do Apps Script (por quiz_version)
+let QUIZ_ATUAL = 'geral';  // geral | perfis | aluna | convite | quizclube
+let ORIGEM = 'tudo';       // tudo | pago | organico (só perfis)
 
-const VERSOES = ['perfis-pago', 'perfis-organico', 'perfis', 'aluna', 'convite', 'quizclube'];
-const TEM_CLIQUE = { 'perfis-pago': true, 'perfis-organico': true, perfis: true, convite: true };
+function n(v){ return (v||0).toLocaleString('pt-BR'); }
+function vazio(){ return { total:0, started:0, total_clicks:0, profiles:{}, clicks:{}, questions:{}, answers:{} }; }
+function somaMapa(dst, src){ Object.keys(src||{}).forEach(function(k){ dst[k]=(dst[k]||0)+src[k]; }); }
+function mergeVersoes(keys){
+  var out = vazio();
+  (keys||[]).forEach(function(k){
+    var s = STATS_RAW[k]; if(!s) return;
+    out.total += s.total||0; out.started += s.started||0; out.total_clicks += s.total_clicks||0;
+    somaMapa(out.profiles, s.profiles); somaMapa(out.clicks, s.clicks);
+    somaMapa(out.questions, s.questions); somaMapa(out.answers, s.answers);
+  });
+  return out;
+}
+function cfg(id){ return QUIZZES.find(function(q){ return q.id===id; }); }
 
-const PROFILE_ORDER = ['Coruja', 'Le\u00e3o', 'Suricato', 'Canguru', 'Coala'];
-
-// Rotulos das perguntas/opcoes do quiz "perfis" (para o detalhamento de respostas)
-const QUESTIONS_LABELS = {
-  q1: { t: 'Idade do bebe', o: ['Ate 30 dias / nao nasceu', '01 a 03 meses', '03 a 06 meses', '06 a 09 meses', '09 a 12 meses'] },
-  q2: { t: 'Sonecas do dia', o: ['So dorme no colo', 'Dorme bem no berco de dia', 'Faz sonecas, mas precisa mais', 'Quase nao dorme, irritado'] },
-  q3: { t: 'Sono noturno', o: ['So no colo / deitado comigo', 'Dorme bem, muitos despertares', 'A noite dorme bem no berco'] },
-  q4: { t: 'Qualidade do sono', o: ['Colo profundo, berco acorda', 'Dia profundo, noite leve', 'Noite profundo, dia leve', 'Dia e noite leve', 'Dorme bem em qualquer lugar'] },
-  q5: { t: 'MAIOR dificuldade', o: ['Fazer dormir fora do colo / berco', 'Sono da noite / despertares', 'Sonecas do dia', 'Ajudar a relaxar (dia e noite)', 'Nao tenho dificuldade'] }
-};
-
-function loadData() {
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('content').style.display = 'none';
-  document.getElementById('error').style.display = 'none';
-
-  fetch(TRACKING_URL)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-      renderDashboard(data.stats);
-    })
-    .catch(err => {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('error').style.display = 'block';
-      console.error(err);
-    });
+// ---------- navegação ----------
+function montarNav(){
+  var nav = document.getElementById('quizNav');
+  var botoes = '<button class="qbtn" data-q="geral">📊 Visão geral</button>';
+  QUIZZES.forEach(function(q){
+    botoes += '<button class="qbtn" data-q="'+q.id+'">'+q.emoji+' '+q.label+'</button>';
+  });
+  nav.innerHTML = botoes;
+  nav.addEventListener('click', function(e){
+    var b = e.target.closest('.qbtn'); if(!b) return;
+    selecionarQuiz(b.getAttribute('data-q'));
+  });
+}
+function selecionarQuiz(id){
+  QUIZ_ATUAL = id;
+  [].forEach.call(document.querySelectorAll('.qbtn'), function(x){
+    x.classList.toggle('active', x.getAttribute('data-q')===id);
+  });
+  var c = cfg(id);
+  document.getElementById('origemWrap').style.display = (c && c.origem) ? 'block' : 'none';
+  desenhar();
 }
 
-function renderDashboard(stats) {
-  const totalsEl = document.getElementById('totals');
-  const cardsEl = document.getElementById('cards');
-
-  let grandTotal = 0;
-  let grandClicks = 0;
-  let grandStarted = 0;
-  // Conclusao geral: soma APENAS dos quizzes com tracking de start (para evitar razao distorcida)
-  let trackedStarted = 0;
-  let trackedCompleted = 0;
-  Object.values(stats).forEach(s => {
-    grandTotal += s.total;
-    grandClicks += s.total_clicks || 0;
-    grandStarted += s.started || 0;
-    if ((s.started || 0) > 0) {
-      trackedStarted += s.started;
-      trackedCompleted += s.total;
-    }
-  });
-
-  totalsEl.innerHTML = `
-    <div class="total-card">
-      <div class="num">${grandStarted}</div>
-      <div class="label">Iniciaram o quiz</div>
-    </div>
-    <div class="total-card">
-      <div class="num">${grandTotal}</div>
-      <div class="label">Finalizaram</div>
-    </div>
-    <div class="total-card">
-      <div class="num">${grandClicks}</div>
-      <div class="label">Clicaram no botao</div>
-    </div>
-    <div class="total-card">
-      <div class="num">${trackedStarted > 0 ? ((trackedCompleted / trackedStarted) * 100).toFixed(1) + '%' : '-'}</div>
-      <div class="label">Conclusao (quizzes com tracking)</div>
-    </div>
-  `;
-
-  let cardsHTML = '';
-
-  VERSOES.forEach(version => {
-    const s = stats[version];
-    if (!s) return;  // versao ainda sem eventos
-    if (!(s.total || s.started || s.total_clicks)) return;  // versao zerada (ex: perfis legado)
-    const info = QUIZ_LABELS[version];
-    const maxCount = Math.max(...PROFILE_ORDER.map(p => s.profiles[p] || 0), 1);
-
-    let profilesHTML = '';
-    PROFILE_ORDER.forEach(animal => {
-      const count = s.profiles[animal] || 0;
-      const pct = maxCount > 0 ? (count / maxCount) * 100 : 0;
-      const a = ANIMAL_MAP[animal];
-      profilesHTML += `
-        <li class="profile-item">
-          <span class="profile-name">
-            <span class="profile-emoji">${a.emoji}</span>
-            ${animal}
-          </span>
-          <div class="profile-bar-container">
-            <div class="profile-bar bar-${a.color}" style="width: ${pct}%"></div>
-          </div>
-          <span class="profile-count">${count}</span>
-        </li>
-      `;
-    });
-
-    let clicksHTML = '';
-    if (TEM_CLIQUE[version] && s.total_clicks > 0) {
-      clicksHTML = '<div class="clicks-section"><h3>Cliques por perfil</h3>';
-      PROFILE_ORDER.forEach(animal => {
-        const clicks = s.clicks[animal] || 0;
-        if (clicks > 0) {
-          clicksHTML += `
-            <div class="click-row">
-              <span>${ANIMAL_MAP[animal].emoji} ${animal}</span>
-              <span class="val">${clicks} cliques</span>
-            </div>
-          `;
-        }
-      });
-      clicksHTML += '</div>';
-    }
-
-    // Funil (só convite por enquanto, outros mostram s.started=0)
-    let funnelHTML = '';
-    const q = s.questions || { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 };
-    const started = s.started || 0;
-    if (started > 0 || s.total > 0) {
-      const steps = [
-        { label: 'Iniciou o quiz', count: started },
-        { label: 'Respondeu Q1', count: q.q1 },
-        { label: 'Respondeu Q2', count: q.q2 },
-        { label: 'Respondeu Q3 (metade)', count: q.q3 },
-        { label: 'Respondeu Q4', count: q.q4 },
-        { label: 'Respondeu Q5 / Finalizou', count: s.total },
-        { label: 'Clicou no botao', count: s.total_clicks || 0 }
-      ];
-      const topCount = Math.max(...steps.map(st => st.count), 1);
-      funnelHTML = '<div class="funnel-section"><h3>Funil de respostas</h3>';
-      steps.forEach((st, i) => {
-        const pctTopo = started > 0 ? ((st.count / started) * 100).toFixed(1) : '-';
-        const barW = (st.count / topCount) * 100;
-        funnelHTML += `
-          <div class="funnel-step">
-            <div class="funnel-bar" style="width:${barW}%"></div>
-            <span class="funnel-label">${st.label}</span>
-            <span class="funnel-value">${st.count}<span class="pct">${started > 0 ? pctTopo + '%' : ''}</span></span>
-          </div>
-        `;
-        if (i < steps.length - 1) {
-          const drop = steps[i].count - steps[i + 1].count;
-          if (drop > 0 && steps[i].count > 0) {
-            const dropPct = ((drop / steps[i].count) * 100).toFixed(1);
-            funnelHTML += `<div class="funnel-drop">↓ -${drop} (${dropPct}% saiu aqui)</div>`;
-          }
-        }
-      });
-      funnelHTML += '</div>';
-    }
-
-    // Detalhamento de respostas (so aparece quando o Apps Script agrega answer_choice)
-    let answersHTML = '';
-    const ans = s.answers || null;
-    if (ans && Object.keys(ans).length) {
-      answersHTML = '<div class="answers-section"><h3>Principais respostas</h3>';
-      ['q1','q2','q3','q4','q5'].forEach(qk => {
-        const def = QUESTIONS_LABELS[qk];
-        if (!def) return;
-        const counts = def.o.map((label, i) => ({ label, n: ans[qk + '_o' + (i+1)] || 0 }));
-        const totalQ = counts.reduce((a, b) => a + b.n, 0);
-        if (!totalQ) return;
-        answersHTML += `<div class="answer-q"><div class="answer-q-title">${qk.toUpperCase()} · ${def.t}</div>`;
-        counts.forEach(c => {
-          const pct = totalQ > 0 ? ((c.n / totalQ) * 100).toFixed(0) : 0;
-          answersHTML += `
-            <div class="answer-row">
-              <div class="answer-bar" style="width:${pct}%"></div>
-              <span class="answer-label">${c.label}</span>
-              <span class="answer-val">${c.n} · ${pct}%</span>
-            </div>`;
-        });
-        answersHTML += '</div>';
-      });
-      answersHTML += '</div>';
-    }
-
-    cardsHTML += `
-      <div class="card">
-        <h2>${info.name} <span class="badge">${info.desc}</span></h2>
-        <div class="stats-row">
-          <div class="stat-box">
-            <div class="num">${s.started || 0}</div>
-            <div class="label">Iniciou</div>
-          </div>
-          <div class="stat-box">
-            <div class="num">${s.total}</div>
-            <div class="label">Finalizou</div>
-          </div>
-          ${TEM_CLIQUE[version] ? `
-          <div class="stat-box">
-            <div class="num">${s.total_clicks || 0}</div>
-            <div class="label">Clicou</div>
-          </div>
-          <div class="stat-box">
-            <div class="num">${s.total > 0 ? ((s.total_clicks / s.total) * 100).toFixed(1) + '%' : '0%'}</div>
-            <div class="label">CTR</div>
-          </div>
-          ` : ''}
-        </div>
-        ${funnelHTML}
-        <ul class="profile-list" style="margin-top:20px;">${profilesHTML}</ul>
-        ${answersHTML}
-        ${clicksHTML}
-      </div>
-    `;
-  });
-
-  cardsEl.innerHTML = cardsHTML;
+// ---------- render ----------
+function desenhar(){
+  if(!Object.keys(STATS_RAW).length) return;
+  if(QUIZ_ATUAL==='geral'){ renderGeral(); return; }
+  var c = cfg(QUIZ_ATUAL);
+  var keys = c.origem ? c.versions[ORIGEM] : c.versions.tudo;
+  renderQuiz(c, mergeVersoes(keys));
 }
 
-loadData();
+function renderGeral(){
+  var totStarted=0, totFinal=0, totClicks=0, trackedStarted=0, trackedFinal=0;
+  var linhas='';
+  QUIZZES.forEach(function(q){
+    var s = mergeVersoes(q.versions.tudo);
+    totStarted += s.started; totFinal += s.total; totClicks += s.total_clicks;
+    if(s.started>0){ trackedStarted += s.started; trackedFinal += s.total; }
+    var conc = s.started>0 ? ((s.total/s.started)*100).toFixed(1)+'%' : '—';
+    linhas += '<button class="qcard" data-q="'+q.id+'">'
+      + '<span class="qemo">'+q.emoji+'</span>'
+      + '<span class="qmeta"><span class="qname">'+q.label+'</span><span class="qdesc">'+q.desc+'</span></span>'
+      + '<span class="qnums">'
+        + '<span class="qnum"><b>'+n(s.started)+'</b><span>Iniciou</span></span>'
+        + '<span class="qnum"><b>'+n(s.total)+'</b><span>Finalizou</span></span>'
+        + '<span class="qnum"><b>'+conc+'</b><span>Conclusão</span></span>'
+      + '</span></button>';
+  });
+  var concGeral = trackedStarted>0 ? ((trackedFinal/trackedStarted)*100).toFixed(1)+'%' : '—';
+
+  var html = '<div class="kpis">'
+    + '<div class="kpi"><div class="n pink">'+n(totStarted)+'</div><div class="l">Iniciaram</div></div>'
+    + '<div class="kpi"><div class="n">'+n(totFinal)+'</div><div class="l">Finalizaram</div></div>'
+    + '<div class="kpi"><div class="n laranja">'+n(totClicks)+'</div><div class="l">Clicaram</div></div>'
+    + '<div class="kpi"><div class="n verde">'+concGeral+'</div><div class="l">Conclusão média</div></div>'
+    + '</div>';
+  html += '<div class="sec"><h2>Quizzes</h2><div class="sub">Toque em um quiz para ver o detalhe</div><div class="qlist">'+linhas+'</div></div>';
+
+  var el = document.getElementById('content');
+  el.innerHTML = html;
+  el.querySelector('.qlist').addEventListener('click', function(e){
+    var b = e.target.closest('.qcard'); if(!b) return;
+    selecionarQuiz(b.getAttribute('data-q'));
+  });
+}
+
+function renderQuiz(c, s){
+  var started=s.started||0, total=s.total||0, clicks=s.total_clicks||0;
+  var conc = started>0 ? ((total/started)*100).toFixed(1)+'%' : '—';
+  var ctr = total>0 ? ((clicks/total)*100).toFixed(1)+'%' : '—';
+  var ehPerfis = (c.id==='perfis');
+
+  var html='';
+
+  // KPIs
+  html+='<div class="kpis">'
+    +'<div class="kpi"><div class="n pink">'+n(started)+'</div><div class="l">Iniciaram</div></div>'
+    +'<div class="kpi"><div class="n">'+n(total)+'</div><div class="l">Finalizaram</div></div>'
+    +'<div class="kpi"><div class="n verde">'+conc+'</div><div class="l">Conclusão</div></div>';
+  if(c.clique){
+    html+='<div class="kpi"><div class="n laranja">'+ctr+'</div><div class="l">Clicaram (CTR)</div></div>';
+  }else{
+    html+='<div class="kpi"><div class="n laranja">'+n(total)+'</div><div class="l">Leads</div></div>';
+  }
+  html+='</div>';
+
+  // Funil
+  var q=s.questions||{};
+  var labFunil = ehPerfis
+    ? ['Respondeu Q1 · idade','Respondeu Q2 · sonecas','Respondeu Q3 · noite','Respondeu Q4 · qualidade']
+    : ['Respondeu Q1','Respondeu Q2','Respondeu Q3','Respondeu Q4'];
+  var steps=[
+    {l:'Iniciou o quiz', c:started},
+    {l:labFunil[0], c:q.q1||0},
+    {l:labFunil[1], c:q.q2||0},
+    {l:labFunil[2], c:q.q3||0},
+    {l:labFunil[3], c:q.q4||0},
+    {l:'Finalizou (Q5)', c:total}
+  ];
+  if(c.clique) steps.push({l:'Clicou em comprar', c:clicks});
+  var topo=Math.max.apply(null,steps.map(function(x){return x.c;}).concat([1]));
+  var temFunil = started>0 || (q.q1||0)+(q.q2||0)+(q.q3||0)+(q.q4||0)>0;
+  html+='<div class="sec"><h2>Funil de desistência</h2><div class="sub">Onde as mães param o quiz</div>';
+  if(temFunil){
+    steps.forEach(function(st,i){
+      var pct = started>0 ? ((st.c/started)*100).toFixed(1) : '';
+      var w=(st.c/topo)*100;
+      html+='<div class="step"><div class="bar" style="width:'+w+'%"></div>'
+        +'<span class="lbl">'+st.l+'</span>'
+        +'<span class="val">'+n(st.c)+(started>0?'<span class="pct">'+pct+'%</span>':'')+'</span></div>';
+      if(i<steps.length-1){
+        var drop=st.c-steps[i+1].c;
+        if(drop>0&&st.c>0){
+          html+='<div class="drop">↓ −'+n(drop)+' ('+((drop/st.c)*100).toFixed(1)+'% saíram aqui)</div>';
+        }
+      }
+    });
+  } else if(total>0){
+    html+='<div class="empty">Esse quiz não rastreia o funil passo a passo — só o resultado final ('+n(total)+' finalizações).</div>';
+  } else {
+    html+='<div class="empty">Ainda sem dados. Assim que o quiz começar a receber visitas, o funil aparece aqui.</div>';
+  }
+  html+='</div>';
+
+  // Perfis
+  var prof=s.profiles||{};
+  var maxP=Math.max.apply(null,ANIMALS.map(function(p){return prof[p.nome]||0;}).concat([1]));
+  var temPerfil = ANIMALS.some(function(p){ return (prof[p.nome]||0)>0; });
+  html+='<div class="sec"><h2>Resultado por perfil</h2><div class="sub">Qual bichinho cada bebê recebeu</div>';
+  if(temPerfil){
+    ANIMALS.forEach(function(p){
+      var ct=prof[p.nome]||0;
+      var pct = total>0 ? Math.round((ct/total)*100) : 0;
+      html+='<div class="pf-row"><span class="emo">'+p.e+'</span>'
+        +'<span class="nome">'+p.nome+'</span>'
+        +'<span class="barbox"><span class="barfill" style="width:'+((ct/maxP)*100)+'%"></span></span>'
+        +'<span class="ct">'+n(ct)+' <small>'+pct+'%</small></span></div>';
+    });
+  } else {
+    html+='<div class="empty">Sem resultados por perfil ainda.</div>';
+  }
+  html+='</div>';
+
+  // Principais respostas (só perfis — os rótulos das opções são desse quiz)
+  if(ehPerfis){
+    var ans=s.answers||{};
+    html+='<div class="sec"><h2>Principais respostas</h2><div class="sub">O que elas respondem em cada pergunta</div>';
+    var temAlguma=false;
+    ['q1','q2','q3','q4','q5'].forEach(function(qk){
+      var def=QLABELS[qk]; if(!def) return;
+      var counts=def.o.map(function(label,i){ return {label:label, c:ans[qk+'_o'+(i+1)]||0}; });
+      var totQ=counts.reduce(function(a,b){return a+b.c;},0);
+      if(!totQ) return;
+      temAlguma=true;
+      html+='<div class="aq"><div class="qt">'+qk.toUpperCase()+' · '+def.t+'</div>';
+      counts.forEach(function(cc){
+        var pct = totQ>0 ? Math.round((cc.c/totQ)*100) : 0;
+        html+='<div class="arow"><div class="abar" style="width:'+pct+'%"></div>'
+          +'<span class="al">'+cc.label+'</span><span class="av">'+n(cc.c)+' · '+pct+'%</span></div>';
+      });
+      html+='</div>';
+    });
+    if(!temAlguma){
+      html+='<div class="empty">As respostas detalhadas aparecem aqui assim que o quiz começar a receber visitas.</div>';
+    }
+    html+='</div>';
+  }
+
+  document.getElementById('content').innerHTML=html;
+}
+
+// ---------- carregamento ----------
+function load(){
+  document.getElementById('loading').style.display='block';
+  document.getElementById('content').style.display='none';
+  document.getElementById('erro').style.display='none';
+  var btn=document.getElementById('btn'); btn.disabled=true;
+
+  fetch(TRACKING_URL).then(function(r){return r.json();}).then(function(data){
+    STATS_RAW = data.stats || {};
+    btn.disabled=false;
+    document.getElementById('loading').style.display='none';
+    desenhar();
+    document.getElementById('content').style.display='block';
+    document.getElementById('ts').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
+  }).catch(function(e){
+    btn.disabled=false;
+    document.getElementById('loading').style.display='none';
+    document.getElementById('erro').style.display='block';
+    console.error(e);
+  });
+}
+
+document.getElementById('btn').addEventListener('click', load);
+document.getElementById('seletor').addEventListener('click', function(e){
+  var b = e.target.closest('.seg'); if(!b) return;
+  ORIGEM = b.getAttribute('data-f');
+  [].forEach.call(this.querySelectorAll('.seg'), function(x){ x.classList.toggle('active', x===b); });
+  desenhar();
+});
+
+montarNav();
+selecionarQuiz('geral');
+load();
 </script>
 </body>
 </html>
