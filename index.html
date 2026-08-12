@@ -162,7 +162,7 @@ body{
     <div class="atualizado" id="ts"></div>
   </div>
 
-  <div class="loading" id="loading"><div class="spin"></div>Carregando métricas...</div>
+  <div class="loading" id="loading"><div class="spin"></div>Carregando métricas...<br><small style="opacity:.7">A primeira carga pode levar alguns segundos.</small></div>
   <div class="erro" id="erro" style="display:none">Não consegui carregar os dados agora. <br>Tente atualizar em alguns segundos.</div>
   <div id="content" style="display:none"></div>
 </div>
@@ -177,8 +177,6 @@ const QUIZZES = [
     origem:true, clique:true },
   { id:'aluna', label:'Aluna', emoji:'🎓', desc:'quiz.manualdorecemnascido.com.br',
     versions:{ tudo:['aluna'] }, origem:false, clique:false },
-  { id:'convite', label:'Convite', emoji:'💌', desc:'convitequiz.manualdorecemnascido.com.br',
-    versions:{ tudo:['convite'] }, origem:false, clique:true },
   { id:'quizclube', label:'Quiz Clube', emoji:'⭐', desc:'quizclube.manualdorecemnascido.com.br',
     versions:{ tudo:['quizclube'] }, origem:false, clique:false }
 ];
@@ -393,14 +391,31 @@ function renderQuiz(c, s){
 }
 
 // ---------- carregamento ----------
+// O Apps Script reprocessa dezenas de milhares de linhas por chamada e pode levar 20-40s.
+// Guardamos o último resultado bom no navegador pra mostrar na hora e atualizar em 2o plano.
+var CACHE_KEY = 'dashquiz_stats_v1';
+
 function load(){
-  document.getElementById('loading').style.display='block';
-  document.getElementById('content').style.display='none';
+  var cached=null;
+  try{ cached = JSON.parse(localStorage.getItem(CACHE_KEY)||'null'); }catch(e){}
+  var temCache = cached && cached.stats && Object.keys(cached.stats).length;
+
+  if(temCache){
+    STATS_RAW = cached.stats;
+    document.getElementById('loading').style.display='none';
+    desenhar();
+    document.getElementById('content').style.display='block';
+    document.getElementById('ts').textContent='Dados de '+new Date(cached.at).toLocaleTimeString('pt-BR')+' · atualizando…';
+  } else {
+    document.getElementById('loading').style.display='block';
+    document.getElementById('content').style.display='none';
+  }
   document.getElementById('erro').style.display='none';
   var btn=document.getElementById('btn'); btn.disabled=true;
 
   fetch(TRACKING_URL).then(function(r){return r.json();}).then(function(data){
     STATS_RAW = data.stats || {};
+    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({stats:STATS_RAW, at:Date.now()})); }catch(e){}
     btn.disabled=false;
     document.getElementById('loading').style.display='none';
     desenhar();
@@ -408,8 +423,12 @@ function load(){
     document.getElementById('ts').textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR');
   }).catch(function(e){
     btn.disabled=false;
-    document.getElementById('loading').style.display='none';
-    document.getElementById('erro').style.display='block';
+    if(temCache){
+      document.getElementById('ts').textContent='Dados de '+new Date(cached.at).toLocaleTimeString('pt-BR')+' (não consegui atualizar agora)';
+    } else {
+      document.getElementById('loading').style.display='none';
+      document.getElementById('erro').style.display='block';
+    }
     console.error(e);
   });
 }
