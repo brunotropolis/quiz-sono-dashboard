@@ -175,6 +175,9 @@ const QUIZZES = [
   { id:'perfis', label:'Dream Baby Pocket', emoji:'🌙', desc:'perfis.manualdorecemnascido.com.br',
     versions:{ tudo:['perfis-pago','perfis-organico','perfis'], pago:['perfis-pago'], organico:['perfis-organico'] },
     origem:true, clique:true },
+  { id:'perfis-v2', label:'Dream Baby Pocket V2 (teste)', emoji:'🧪', desc:'perfis.manualdorecemnascido.com.br/v2 · página de resultado (tráfego)',
+    versions:{ tudo:['perfis-pago-v2','perfis-organico-v2'], pago:['perfis-pago-v2'], organico:['perfis-organico-v2'] },
+    origem:true, clique:true },
   { id:'aluna', label:'Aluna', emoji:'🎓', desc:'quiz.manualdorecemnascido.com.br',
     versions:{ tudo:['aluna'] }, origem:false, clique:false, funil:false },
   { id:'quizclube', label:'Quiz Clube', emoji:'⭐', desc:'quizclube.manualdorecemnascido.com.br',
@@ -289,7 +292,7 @@ function renderQuiz(c, s){
   var started=s.started||0, total=s.total||0, clicks=s.total_clicks||0;
   var conc = started>0 ? ((total/started)*100).toFixed(1)+'%' : '—';
   var ctr = total>0 ? ((clicks/total)*100).toFixed(1)+'%' : '—';
-  var ehPerfis = (c.id==='perfis');
+  var ehPerfis = (c.id==='perfis' || c.id==='perfis-v2');
   var temFunilQuiz = (c.funil !== false);
 
   var html='';
